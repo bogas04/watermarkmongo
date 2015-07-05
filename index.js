@@ -7,13 +7,15 @@ var userSchema = new mongoose.Schema({ name: String, phone: Number, dob: Date })
 
 userSchema.pre('save', function(next) {
   var start = Date.now();
-  var watermark = wm.watermark(this, ['name', 'phone']);
+  var watermark = wm.watermark(this, 'name');
   this.setValue(watermark.key, watermark.value);
   console.log("    " + Date.now() - start + " ms in watermarking");
   next();
 });
 
 var User = mongoose.model('User', userSchema);
+
+wm.config.watermark = "divjotsing";
 
 /* TEST BENCH */
 User.remove({}, function(err) {
