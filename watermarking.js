@@ -5,7 +5,7 @@ function hash(value) {
 }
 exports.config = {};
 exports.watermark = function(object, signatureKey) {
-  var ownerSecret = exports.config.watermark + object[signatureKey]; 
+  var ownerSecret = hash(exports.config.watermark + object[signatureKey]);
   var rand = gen.create(ownerSecret);
   var attributeNames = [
     'attr1',
@@ -18,7 +18,7 @@ exports.watermark = function(object, signatureKey) {
   var secretStart = rand(ownerSecret.length - 4);
   var watermark = {
     key : attributeNames[rand(attributeNames.length)],
-    value : ownerSecret.substring(secretStart, secretStart + 4)
+    value : parseInt(ownerSecret.substring(secretStart, secretStart + 4), 16)
   };
   console.log(secretStart);
   return watermark;

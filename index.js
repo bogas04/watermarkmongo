@@ -15,7 +15,7 @@ userSchema.pre('save', function(next) {
 
 var User = mongoose.model('User', userSchema);
 
-wm.config.watermark = "divjotsing";
+wm.config.watermark = "divjotsingh";
 
 /* TEST BENCH */
 User.remove({}, function(err) {
