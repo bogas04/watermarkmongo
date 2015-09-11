@@ -1,35 +1,35 @@
 var mongoose = require('mongoose');
 var data = require('./data.js').data;
 var wm = require('./watermarking.js');
-mongoose.connect('mongodb://127.0.0.1/watermarking');
+mongoose.connect('mongodb://127.0.0.1/watermarking', function(err) { if(err) { console.log("Connection failed ", err); process.exit(0); } });
 
 var userSchema = new mongoose.Schema({ name: String, phone: Number, dob: Date });
 
 userSchema.pre('save', function(next) {
   var start = Date.now();
-  var watermark = wm.watermark(this, 'name');
+  var watermark = wm.encode(this);
   this.setValue(watermark.key, watermark.value);
-  console.log("    " + Date.now() - start + " ms in watermarking");
+  console.log("\t" + Date.now() - start + " ms in watermarking");
   next();
 });
 
 var User = mongoose.model('User', userSchema);
 
 wm.config.watermark = "divjotsingh";
+wm.config.attributeNames = [ 'attr1', 'attr2', 'attr3', 'attr4', 'attr5', 'attr6' ];
 
 /* TEST BENCH */
 User.remove({}, function(err) {
-  console.log("REMOVING");
   if(err) { console.log(err); return; }
   console.log("  INSERTING");
   User.create(data, function (err, d) {
     console.log("  INSERTED");
     if(err) { console.log(err); return; }
-    console.log("  UPDATING");
-    User.update({ phone : { $mod : [2, 0] } }, { $set : { dob : new Date() }}, function(err, data) {
-      console.log("  UPDATED");
+    User.find({}, function(err, elements) {
       if(err) { console.log(err); return; }
-      console.log("DONE");
+      console.log("TESTING WATERMARK");
+      for(var e of elements)
+        console.log(wm.decode(e.toJSON()));
       process.exit(0);
     });
   });
